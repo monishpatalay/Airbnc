@@ -21,6 +21,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 const jwtSecret = process.env.JWT_SECRET;
+const isProduction = process.env.NODE_ENV === "production";
+const authCookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+};
 
 // 🔐 Utility function
 function getUserDataFromReq(req) {
@@ -81,7 +87,7 @@ app.post("/login", async (req, res) => {
       { expiresIn: "7d" },
       (err, token) => {
         if (err) return res.status(500).json("Token error");
-        res.cookie("token", token, { httpOnly: true, sameSite: "lax" }).json(userDoc);
+        res.cookie("token", token, authCookieOptions).json(userDoc);
       }
     );
   } catch (err) {
@@ -102,7 +108,7 @@ app.get("/profile", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.cookie("token", "", { httpOnly: true }).json({ message: "Logged out" });
+  res.cookie("token", "", authCookieOptions).json({ message: "Logged out" });
 });
 
 app.post("/upload-by-link", async (req, res) => {
