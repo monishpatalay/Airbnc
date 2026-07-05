@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import AddressLink from "../AddressLink";
@@ -11,35 +11,36 @@ export default function BookingPage() {
 
   useEffect(() => {
     if (id) {
-      axios.get(`/bookings`).then((response) => {
-        const foundBooking = response.data.find(({_id}) => _id === id);
-        if (foundBooking) {
-          setBooking(foundBooking);
-        } else {
-          console.error("Booking not found");
-        }
-      });
+      axios
+        .get(`/bookings`)
+        .then((response) => {
+          const foundBooking = response.data.find(({ _id }) => _id === id);
+          if (foundBooking) {
+            setBooking(foundBooking);
+          }
+        })
+        .catch(() => {});
     }
   }, [id]);
 
-  if (!booking) {
-    return "";
-  }
+  if (!booking) return null;
 
   return (
-    <div className="my-8 ">
-      <h1 className="text-3xl font-semibold">{booking.place.title}</h1>
-      <AddressLink className="my-2 block" >{booking.place.address}</AddressLink>
-      <div className="bg-gray-200 p-6 my-6 rounded-2xl flex items-center justify-between">
+    <div className="my-8">
+      <h1 className="font-display text-3xl">{booking.place.title}</h1>
+      <AddressLink className="my-2">{booking.place.address}</AddressLink>
+
+      <div className="bg-surface-alt p-6 my-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl mb-4">Your booking information:</h2>
+          <h2 className="text-lg font-semibold mb-3">Your booking is confirmed</h2>
           <BookingDates booking={booking} />
         </div>
-        <div className="bg-primary p-6 text-white rounded-2xl">
-          <div>Total price</div>
-          <div className="text-3xl">${booking.price}</div>
+        <div className="bg-primary p-5 text-white rounded-2xl text-center shrink-0">
+          <div className="text-xs uppercase tracking-wide opacity-80">Total price</div>
+          <div className="text-2xl font-bold">${booking.price}</div>
         </div>
       </div>
+
       <PlaceGallery place={booking.place} />
     </div>
   );

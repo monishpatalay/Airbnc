@@ -1,14 +1,12 @@
 import { useContext, useState } from "react";
 import { UserContext } from "../UserContext";
-import { Link, useParams, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import axios from "axios";
-import PlacesPage from "./PlacesPage";
 import AccountNav from "../AccountNav";
 
 export default function ProfilePage() {
   const [redirect, setRedirect] = useState(null);
   const { ready, user, setUser } = useContext(UserContext);
-  const { subpage = "profile" } = useParams();
 
   async function logout() {
     await axios.post("/logout");
@@ -18,8 +16,8 @@ export default function ProfilePage() {
 
   if (!ready) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -28,28 +26,27 @@ export default function ProfilePage() {
     return <Navigate to={"/login"} />;
   }
 
- 
-
   if (redirect) {
     return <Navigate to={redirect} />;
   }
 
   return (
     <div>
-      <AccountNav/>
-      {subpage === "profile" && (
-        <div className="text-center max-w-lg mx-auto mt-8">
-          Logged in as <strong>{user.name}</strong> ({user.email})
-          <br />
-          <button
-            onClick={logout}
-            className="bg-primary text-white px-4 py-2 rounded-full mt-4 max-w-sm"
-          >
-            Logout
-          </button>
+      <h1 className="sr-only">My profile</h1>
+      <AccountNav />
+      <div className="max-w-md mx-auto mt-10 text-center bg-white rounded-3xl shadow-soft border border-black/5 p-8">
+        <div className="w-16 h-16 mx-auto rounded-full bg-ink text-white grid place-items-center text-2xl font-semibold mb-4">
+          {user.name.charAt(0).toUpperCase()}
         </div>
-      )}
-      {subpage === "places" && <PlacesPage />}
+        <h2 className="font-display text-xl">{user.name}</h2>
+        <p className="text-ink/50 text-sm mt-1">{user.email}</p>
+        <button
+          onClick={logout}
+          className="bg-ink text-white px-5 py-2.5 rounded-full mt-6 font-medium hover:bg-ink/85 transition-colors"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 }

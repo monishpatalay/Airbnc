@@ -1,2 +1,6 @@
-/.DS_Storeapi/.env
+.DS_Store
+node_modules/
+api/.env
 api/uploads/*
+client/.env
+client/dist/

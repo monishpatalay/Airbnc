@@ -1,13 +1,13 @@
-export default function PlaceGallery({ children, className = null }) {
+export default function AddressLink({ children, className = null }) {
     if (!children) {
       className = " block my-2 ";
     }
-    className = "text-blue-500 flex font-semibold gap-1 underline " + className;
+    className = "text-primary flex font-semibold gap-1 items-center hover:underline w-fit " + className;
   
     return (
       <a
         className={className}
-        href={`https://maps.google.com/?q=${children}`}
+        href={`https://maps.google.com/?q=${encodeURIComponent(children)}`}
         target="_blank"
         rel="noopener noreferrer"
       >

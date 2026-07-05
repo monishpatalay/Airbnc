@@ -1,61 +1,89 @@
 import axios from "axios";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { UserContext } from "../UserContext.jsx"; // Adjust the import path as necessary
-
-
+import { UserContext } from "../UserContext.jsx";
+import { useEntranceReveal } from "../lib/animations.js";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [redirect, setRedirect] = useState(false);
-  const {setUser} = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
+  const cardRef = useRef(null);
 
-    async function handleLoginSubmit(ev) {
+  useEntranceReveal(cardRef, { y: 20 });
+
+  async function handleLoginSubmit(ev) {
     ev.preventDefault();
-    // Make sure to call the correct URL (note the port).
-    try{
-        const {data} = await axios.post("https://ems-2-v9qq.onrender.com/login", { email, password });
-        setUser(data);
-        alert("User logged in successfully");
-        setRedirect(true);
+    setError("");
+    setSubmitting(true);
+    try {
+      const { data } = await axios.post("/login", { email, password });
+      setUser(data);
+      setRedirect(true);
+    } catch {
+      setError("We couldn't find an account with those details. Check your email and password and try again.");
+    } finally {
+      setSubmitting(false);
     }
-    catch(err){
-        alert("User not found");
-    }
-  } 
+  }
 
   if (redirect) {
     return <Navigate to={"/"} />;
   }
 
   return (
-    <div className="mt-4 grow flex items-center justify-around">
-      <div className="mb-64">
-        <h1 className="text-4xl p-4 text-center">Login</h1>
-        <form className="max-w-md mx-auto" onSubmit={handleLoginSubmit}>
+    <div className="min-h-[70vh] flex items-center justify-center py-10">
+      <div
+        ref={cardRef}
+        className="w-full max-w-md bg-white rounded-3xl shadow-lifted border border-black/5 p-8 sm:p-10"
+      >
+        <h1 className="font-display text-3xl text-center mb-1">Welcome back</h1>
+        <p className="text-center text-ink/50 text-sm mb-6">
+          Log in to continue planning your next stay.
+        </p>
+
+        {error && (
+          <div className="mb-2 rounded-2xl bg-primary-light text-primary-dark text-sm px-4 py-3">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLoginSubmit}>
+          <label htmlFor="login-email" className="block text-xs font-semibold uppercase tracking-wide text-ink/40 mt-3 mb-1">
+            Email
+          </label>
           <input
+            id="login-email"
             type="email"
             placeholder="your@email.com"
             value={email}
             onChange={(ev) => setEmail(ev.target.value)}
+            required
           />
+
+          <label htmlFor="login-password" className="block text-xs font-semibold uppercase tracking-wide text-ink/40 mt-1 mb-1">
+            Password
+          </label>
           <input
+            id="login-password"
             type="password"
             placeholder="password"
             value={password}
             onChange={(ev) => setPassword(ev.target.value)}
+            required
           />
-          <button type="submit" className="btn-primary">
-            Login
+
+          <button type="submit" className="btn-primary mt-4" disabled={submitting}>
+            {submitting ? "Logging in…" : "Login"}
           </button>
-          <div className="text-center py-2">
-            Dont have an account yet?{" "}
-            <Link
-              to="/register"
-              style={{ textDecoration: "underline", color: "gray" }}
-            >
-              Register Now
+
+          <div className="text-center py-4 text-sm text-ink/60">
+            Don&apos;t have an account yet?{" "}
+            <Link to="/register" className="text-primary font-semibold hover:underline">
+              Register now
             </Link>
           </div>
         </form>

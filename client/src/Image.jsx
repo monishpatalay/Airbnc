@@ -1,8 +1,10 @@
-export default function Image({src,...rest}) {
+import { uploadUrl } from './config.js';
+
+export default function Image({src, alt = '', ...rest}) {
     src = src && src.includes('https://')
       ? src
-      : 'https://ems-2-v9qq.onrender.com/uploads/'+src;
+      : uploadUrl(src);
     return (
-      <img {...rest} src={src} alt={''} />
+      <img {...rest} src={src} alt={alt} />
     );
   }

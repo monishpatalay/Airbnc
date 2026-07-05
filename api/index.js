@@ -199,27 +199,23 @@ app.get("/places", async (req, res) => {
 
 app.post("/bookings", async (req, res) => {
   try {
-    console.log("🟡 Booking request received");
-    console.log("Body:", req.body);
     const userData = await getUserDataFromReq(req);
-    console.log("User data:", userData);
-    const { place, checkIn, price, checkOut, guests, name, phone } = req.body;
-    if (!place || !checkIn || !checkOut || !guests || !name || !phone) {
+    const { place, checkIn, price, checkOut, noOfGuests, name, mobile } = req.body;
+    if (!place || !checkIn || !checkOut || !noOfGuests || !name || !mobile) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     const bookingDoc = await Booking.create({
       place,
       checkIn,
       checkOut,
-      noOfGuests: guests,
+      noOfGuests,
       name,
       price,
-      mobile: phone,
+      mobile,
       user: userData.id,
     });
     res.json(bookingDoc);
   } catch (err) {
-    console.error("❌ Booking error:", err);
     res.status(500).json({ error: err.message });
   }
 });

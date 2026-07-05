@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { uploadUrl } from "./config.js";
 
 export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
   const [photoLink, setPhotoLink] = useState("");
@@ -44,9 +45,6 @@ export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
 
     axios
       .delete("/remove-photo", { data: { link } })
-      .then(() => {
-        console.log("Photo deleted from server.");
-      })
       .catch((err) => {
         console.error("Failed to delete photo on server:", err);
       });
@@ -88,7 +86,7 @@ export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
             >
               <img
                 className="w-full h-full object-cover rounded-2xl"
-                src={`https://ems-2-v9qq.onrender.com/uploads/${link}`}
+                src={uploadUrl(link)}
                 alt=""
               />
 
@@ -177,8 +175,7 @@ export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
 
         {/* Upload button */}
         <label
-          type="button"
-          className="aspect-square flex items-center justify-center border rounded-2xl overflow-hidden text-gray-500 hover:text-gray-700 border-gray-300 shadow-md"
+          className="aspect-square flex items-center justify-center border rounded-2xl overflow-hidden text-gray-500 hover:text-gray-700 border-gray-300 shadow-md cursor-pointer"
         >
           <input type="file" className="hidden" onChange={uploadPhoto} />
           <svg

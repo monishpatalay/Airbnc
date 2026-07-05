@@ -1,23 +1,99 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary : #f5385D;
+  --color-primary: #f5385d;
+  --color-primary-dark: #d42a4c;
+  --color-primary-light: #ffe4ea;
+  --color-ink: #221c2b;
+  --color-surface: #fffaf7;
+  --color-surface-alt: #fff1ec;
+  --color-gold: #e8a33d;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --shadow-soft: 0 2px 10px -2px rgb(34 28 43 / 0.08);
+  --shadow-lifted: 0 20px 40px -12px rgb(34 28 43 / 0.22);
 }
 
-input[type="text"], input[type="email"], input[type="password"], input[type="name"] ,input[type="number"], input[type="tel"], textarea {
-  @apply w-full p-2 border my-2 border-gray-300 rounded-2xl;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(34 28 43 / 0.18);
+  border-radius: 999px;
+  border: 2px solid var(--color-surface);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+input[type="text"], input[type="email"], input[type="password"], input[type="name"], input[type="number"], input[type="tel"], input[type="date"], textarea {
+  @apply w-full px-4 py-3 border my-2 border-black/10 rounded-2xl bg-white transition-shadow duration-150;
+}
+
+input:focus, textarea:focus {
+  @apply outline-none ring-2 ring-primary/40 border-primary/40;
 }
 
 textarea {
   height: 150px;
 }
 
-button.btn-primary{
-  @apply bg-primary text-white p-2 border border-gray-300 rounded-2xl w-full;
+button.btn-primary {
+  @apply bg-primary text-white p-3 border border-transparent rounded-2xl w-full font-semibold shadow-soft transition-all duration-200;
+}
+button.btn-primary:hover {
+  @apply bg-primary-dark shadow-lifted;
+  transform: translateY(-1px);
+}
+button.btn-primary:active {
+  transform: translateY(0);
+}
+button.btn-primary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+  transform: none;
 }
 
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lifted);
+}
 
-/* input:focus {
-  outline: none;    
-  box-shadow: none; 
-} */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f1ebe7 25%, #f8f2ef 37%, #f1ebe7 63%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}

@@ -11,9 +11,11 @@ import PlacesFormPage from './pages/PlacesFormPage.jsx';
 import PlacePage from './pages/PlacePage.jsx';
 import BookingsPage from './pages/BookingsPage.jsx';
 import BookingPage from './pages/BookingPage.jsx';
+import { API_URL } from './config.js';
 
-axios.defaults.baseURL = 'https://ems-2-v9qq.onrender.com';
+axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
+axios.defaults.timeout = 15000;
 
 function App() {
   
