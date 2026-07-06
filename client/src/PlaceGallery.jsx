@@ -16,7 +16,13 @@ export default function PlaceGallery({ place }) {
       gsap.to(overlayRef.current, {
         opacity: 0,
         duration: 0.2,
-        onComplete: () => setShowAllPhotos(false),
+        onComplete: () => {
+          // React reuses this DOM node for the non-overlay view (same element
+          // type/position), so the inline opacity GSAP set must be cleared
+          // explicitly or the reused node stays invisible after the swap.
+          overlayRef.current.style.opacity = "";
+          setShowAllPhotos(false);
+        },
       });
     } else {
       setShowAllPhotos(false);
