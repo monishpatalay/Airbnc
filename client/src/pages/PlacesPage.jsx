@@ -91,22 +91,41 @@ export default function PlacesPage() {
           </div>
         )}
         {places.map((place) => (
-          <Link
+          <div
             data-row
             key={place._id}
-            to={"/account/places/" + place._id}
-            className="border border-black/5 bg-white cursor-pointer rounded-2xl p-4 shadow-soft hover:shadow-lifted transition-shadow flex gap-4 items-center card-hover"
+            className="border border-black/5 bg-white rounded-2xl p-4 shadow-soft hover:shadow-lifted transition-shadow flex gap-4 items-center card-hover"
           >
-            <div className="flex h-28 w-28 shrink-0 bg-surface-alt rounded-xl overflow-hidden">
-              <PlaceImg place={place} />
-            </div>
-            <div className="grow-0 shrink min-w-0 flex-1">
-              <h2 className="text-lg font-semibold truncate">{place.title}</h2>
-              <p className="text-sm text-ink/50 mt-1 line-clamp-2">{place.description}</p>
-              <p className="text-sm font-semibold mt-2">${place.price} <span className="text-ink/40 font-normal">/ night</span></p>
-            </div>
+            <Link
+              to={"/account/places/" + place._id}
+              className="flex gap-4 items-center flex-1 min-w-0 cursor-pointer"
+            >
+              <div className="flex h-28 w-28 shrink-0 bg-surface-alt rounded-xl overflow-hidden">
+                <PlaceImg place={place} />
+              </div>
+              <div className="grow-0 shrink min-w-0 flex-1">
+                <h2 className="text-lg font-semibold truncate">{place.title}</h2>
+                <p className="text-sm text-ink/50 mt-1 line-clamp-2">{place.description}</p>
+                <p className="text-sm font-semibold mt-2">${place.price} <span className="text-ink/40 font-normal">/ night</span></p>
+              </div>
+            </Link>
 
             <div className="shrink-0 flex items-center gap-2 ml-auto pl-2">
+              {confirmingId !== place._id && (
+                <Link
+                  to={"/account/places/" + place._id}
+                  aria-label="Edit listing"
+                  className="grid place-items-center w-11 h-11 rounded-full text-ink/40 hover:text-primary hover:bg-primary-light transition-colors duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                    />
+                  </svg>
+                </Link>
+              )}
               {confirmingId === place._id ? (
                 <>
                   <span className="text-sm text-ink/60 hidden sm:inline">Delete?</span>
@@ -143,7 +162,7 @@ export default function PlacesPage() {
                 </button>
               )}
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </div>

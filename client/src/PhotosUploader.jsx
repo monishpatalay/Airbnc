@@ -177,7 +177,7 @@ export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
         <label
           className="aspect-square flex items-center justify-center border rounded-2xl overflow-hidden text-gray-500 hover:text-gray-700 border-gray-300 shadow-md cursor-pointer"
         >
-          <input type="file" className="hidden" onChange={uploadPhoto} />
+          <input type="file" multiple accept="image/*" className="hidden" onChange={uploadPhoto} />
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
