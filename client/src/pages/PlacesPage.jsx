@@ -106,7 +106,7 @@ export default function PlacesPage() {
               <p className="text-sm font-semibold mt-2">${place.price} <span className="text-ink/40 font-normal">/ night</span></p>
             </div>
 
-            <div className="shrink-0 flex items-center gap-2">
+            <div className="shrink-0 flex items-center gap-2 ml-auto pl-2">
               {confirmingId === place._id ? (
                 <>
                   <span className="text-sm text-ink/60 hidden sm:inline">Delete?</span>
@@ -114,14 +114,14 @@ export default function PlacesPage() {
                     type="button"
                     onClick={(ev) => confirmDelete(ev, place._id)}
                     disabled={deletingId === place._id}
-                    className="text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-full px-3 py-1.5 transition-colors disabled:opacity-50"
+                    className="text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-full px-3 py-2 min-h-11 transition-colors duration-150 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                   >
                     {deletingId === place._id ? "Deleting…" : "Confirm"}
                   </button>
                   <button
                     type="button"
                     onClick={cancelDelete}
-                    className="text-sm font-medium text-ink/60 hover:text-ink rounded-full px-3 py-1.5 transition-colors"
+                    className="text-sm font-medium text-ink/60 hover:text-ink rounded-full px-3 py-2 min-h-11 transition-colors duration-150 active:scale-95"
                   >
                     Cancel
                   </button>
@@ -131,7 +131,7 @@ export default function PlacesPage() {
                   type="button"
                   aria-label="Delete listing"
                   onClick={(ev) => askDelete(ev, place._id)}
-                  className="grid place-items-center w-9 h-9 rounded-full text-ink/40 hover:text-primary hover:bg-primary-light transition-colors"
+                  className="grid place-items-center w-11 h-11 rounded-full text-ink/40 hover:text-primary hover:bg-primary-light transition-colors duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                     <path
