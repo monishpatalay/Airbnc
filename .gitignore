@@ -4,3 +4,4 @@ api/.env
 api/uploads/*
 client/.env
 client/dist/
+.claude/
