@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { uploadUrl } from "./config.js";
+import { photoUrl } from "./config.js";
 
 export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
   const [photoLink, setPhotoLink] = useState("");
@@ -86,7 +86,7 @@ export default function PhotosUploader({ addedPhotos, setAddedPhotos }) {
             >
               <img
                 className="w-full h-full object-cover rounded-2xl"
-                src={uploadUrl(link)}
+                src={photoUrl(link)}
                 alt=""
               />
 

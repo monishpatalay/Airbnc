@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import PlaceImg from "./PlaceImg";
-import { uploadUrl } from "./config.js";
+import { photoUrl } from "./config.js";
 
 export default function PlaceGallery({ place }) {
   const [showAllPhotos, setShowAllPhotos] = useState(false);
@@ -78,7 +78,7 @@ export default function PlaceGallery({ place }) {
             className="col-span-2 h-full overflow-hidden group cursor-pointer"
           >
             <img
-              src={uploadUrl(place.photos[0])}
+              src={photoUrl(place.photos[0])}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               alt={`${place.title} photo 1`}
             />
@@ -93,7 +93,7 @@ export default function PlaceGallery({ place }) {
               className="h-full overflow-hidden group cursor-pointer"
             >
               <img
-                src={uploadUrl(place.photos[1])}
+                src={photoUrl(place.photos[1])}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 alt={`${place.title} photo 2`}
               />
@@ -106,7 +106,7 @@ export default function PlaceGallery({ place }) {
               className="h-full overflow-hidden group cursor-pointer"
             >
               <img
-                src={uploadUrl(place.photos[2])}
+                src={photoUrl(place.photos[2])}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 alt={`${place.title} photo 3`}
               />

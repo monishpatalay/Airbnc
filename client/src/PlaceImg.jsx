@@ -1,4 +1,4 @@
-import { uploadUrl } from './config.js';
+import { photoUrl } from './config.js';
 
 export default function PlaceImg({ place, index = 0, className = "rounded-2xl object-cover aspect-square" }) {
   if (!place?.photos?.length) return null;
@@ -6,7 +6,7 @@ export default function PlaceImg({ place, index = 0, className = "rounded-2xl ob
   return (
     <img
       className={className}
-      src={uploadUrl(place.photos[index])}
+      src={photoUrl(place.photos[index])}
       alt={place.title}
       loading="lazy"
     />
