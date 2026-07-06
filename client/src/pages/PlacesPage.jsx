@@ -5,6 +5,16 @@ import axios from "axios";
 import PlaceImg from "../PlaceImg";
 import { useStaggerReveal } from "../lib/animations.js";
 
+function PlaceCardSkeleton() {
+  return (
+    <div>
+      <div className="skeleton mb-3 rounded-2xl aspect-[4/3]" />
+      <div className="skeleton h-4 w-3/4 rounded-full mb-2" />
+      <div className="skeleton h-3 w-1/2 rounded-full" />
+    </div>
+  );
+}
+
 export default function PlacesPage() {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,45 +89,60 @@ export default function PlacesPage() {
         </div>
       )}
 
-      <div ref={listRef} className="mt-8 space-y-4">
+      <div ref={listRef} className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+        {loading &&
+          Array.from({ length: 3 }).map((_, i) => <PlaceCardSkeleton key={i} />)}
+
         {!loading && loadError && (
-          <div className="text-center py-16 text-ink/50">
+          <div className="col-span-full text-center py-16 text-ink/50">
             We couldn&apos;t load your accommodations right now. Please try again in a moment.
           </div>
         )}
         {!loading && !loadError && places.length === 0 && (
-          <div className="text-center py-16 text-ink/50">
+          <div className="col-span-full text-center py-16 text-ink/50">
             You haven&apos;t listed any places yet.
           </div>
         )}
+
         {places.map((place) => (
-          <div
-            data-row
-            key={place._id}
-            className="border border-black/5 bg-white rounded-2xl p-4 shadow-soft hover:shadow-lifted transition-shadow flex gap-4 items-center card-hover"
-          >
-            <Link
-              to={"/account/places/" + place._id}
-              className="flex gap-4 items-center flex-1 min-w-0 cursor-pointer"
-            >
-              <div className="flex h-28 w-28 shrink-0 bg-surface-alt rounded-xl overflow-hidden">
-                <PlaceImg place={place} />
+          <div data-row key={place._id} className="group relative">
+            <Link to={"/account/places/" + place._id} className="block">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-surface-alt mb-3">
+                <PlaceImg
+                  place={place}
+                  className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                />
               </div>
-              <div className="grow-0 shrink min-w-0 flex-1">
-                <h2 className="text-lg font-semibold truncate">{place.title}</h2>
-                <p className="text-sm text-ink/50 mt-1 line-clamp-2">{place.description}</p>
-                <p className="text-sm font-semibold mt-2">${place.price} <span className="text-ink/40 font-normal">/ night</span></p>
+              <h2 className="font-display text-lg leading-snug truncate">
+                {place.title || "Untitled listing"}
+              </h2>
+              <p className="flex items-center gap-1 text-sm text-ink/50 mt-1 truncate">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-3.5 shrink-0">
+                  <path
+                    fillRule="evenodd"
+                    d="M11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 0 0-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742ZM12 13.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {place.address}
+              </p>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="font-semibold">${place.price}</span>
+                <span className="text-ink/50 text-sm">/ night</span>
+                {!!place.maxGuests && (
+                  <span className="text-ink/40 text-sm">&middot; up to {place.maxGuests} guests</span>
+                )}
               </div>
             </Link>
 
-            <div className="shrink-0 flex items-center gap-2 ml-auto pl-2">
+            <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur rounded-full p-1 shadow-soft">
               {confirmingId !== place._id && (
                 <Link
                   to={"/account/places/" + place._id}
                   aria-label="Edit listing"
-                  className="grid place-items-center w-11 h-11 rounded-full text-ink/40 hover:text-primary hover:bg-primary-light transition-colors duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+                  className="grid place-items-center w-9 h-9 rounded-full text-ink/50 hover:text-primary hover:bg-primary-light transition-colors duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -127,32 +152,31 @@ export default function PlacesPage() {
                 </Link>
               )}
               {confirmingId === place._id ? (
-                <>
-                  <span className="text-sm text-ink/60 hidden sm:inline">Delete?</span>
+                <div className="flex items-center gap-1 pl-2">
                   <button
                     type="button"
                     onClick={(ev) => confirmDelete(ev, place._id)}
                     disabled={deletingId === place._id}
-                    className="text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-full px-3 py-2 min-h-11 transition-colors duration-150 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                    className="text-xs font-semibold text-white bg-primary hover:bg-primary-dark rounded-full px-3 py-2 min-h-9 transition-colors duration-150 active:scale-95 disabled:opacity-50 disabled:active:scale-100 whitespace-nowrap"
                   >
                     {deletingId === place._id ? "Deleting…" : "Confirm"}
                   </button>
                   <button
                     type="button"
                     onClick={cancelDelete}
-                    className="text-sm font-medium text-ink/60 hover:text-ink rounded-full px-3 py-2 min-h-11 transition-colors duration-150 active:scale-95"
+                    className="text-xs font-medium text-ink/60 hover:text-ink rounded-full px-3 py-2 min-h-9 transition-colors duration-150 active:scale-95 whitespace-nowrap"
                   >
                     Cancel
                   </button>
-                </>
+                </div>
               ) : (
                 <button
                   type="button"
                   aria-label="Delete listing"
                   onClick={(ev) => askDelete(ev, place._id)}
-                  className="grid place-items-center w-11 h-11 rounded-full text-ink/40 hover:text-primary hover:bg-primary-light transition-colors duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
+                  className="grid place-items-center w-9 h-9 rounded-full text-ink/50 hover:text-primary hover:bg-primary-light transition-colors duration-150 active:scale-90 focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-4">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
