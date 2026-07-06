@@ -9,6 +9,7 @@ import { useStaggerReveal } from "../lib/animations.js";
 export default function BookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const listRef = useRef(null);
 
   useStaggerReveal(listRef, "[data-row]", [bookings]);
@@ -17,7 +18,7 @@ export default function BookingsPage() {
     axios
       .get("/bookings")
       .then((response) => setBookings(response.data || []))
-      .catch(() => setBookings([]))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -27,7 +28,10 @@ export default function BookingsPage() {
       <div className="py-10">
         <h1 className="font-display text-2xl text-center mb-8">My bookings</h1>
 
-        {!loading && bookings.length === 0 && (
+        {!loading && loadError && (
+          <p className="text-center text-ink/50 mt-4">We couldn&apos;t load your bookings right now. Please try again in a moment.</p>
+        )}
+        {!loading && !loadError && bookings.length === 0 && (
           <p className="text-center text-ink/50 mt-4">You have no bookings yet.</p>
         )}
 

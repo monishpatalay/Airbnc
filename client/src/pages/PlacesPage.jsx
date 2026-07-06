@@ -8,6 +8,7 @@ import { useStaggerReveal } from "../lib/animations.js";
 export default function PlacesPage() {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const listRef = useRef(null);
 
   useStaggerReveal(listRef, "[data-row]", [places]);
@@ -16,7 +17,7 @@ export default function PlacesPage() {
     axios
       .get("/user-places")
       .then((response) => setPlaces(response.data))
-      .catch(() => setPlaces([]))
+      .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -41,7 +42,12 @@ export default function PlacesPage() {
       </div>
 
       <div ref={listRef} className="mt-8 space-y-4">
-        {!loading && places.length === 0 && (
+        {!loading && loadError && (
+          <div className="text-center py-16 text-ink/50">
+            We couldn&apos;t load your accommodations right now. Please try again in a moment.
+          </div>
+        )}
+        {!loading && !loadError && places.length === 0 && (
           <div className="text-center py-16 text-ink/50">
             You haven&apos;t listed any places yet.
           </div>
