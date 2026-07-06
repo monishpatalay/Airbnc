@@ -123,29 +123,56 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/upload-by-link", async (req, res) => {
-  const { link } = req.body;
-  try {
-    const result = await cloudinary.uploader.upload(link, { folder: "airbnc" });
-    res.json(result.secure_url);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to upload image" });
-  }
+  const { token } = req.cookies;
+  jwt.verify(token, jwtSecret, {}, async (err) => {
+    if (err) return res.status(403).json("Token invalid");
+    const { link } = req.body;
+    try {
+      const result = await cloudinary.uploader.upload(link, { folder: "airbnc" });
+      res.json(result.secure_url);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to upload image" });
+    }
+  });
 });
 
-const photosMiddleware = multer({ storage: multer.memoryStorage() });
-app.post("/upload", photosMiddleware.array("photos", 100), async (req, res) => {
-  try {
-    const uploadedUrls = await Promise.all(
-      req.files.map(async (file) => {
-        const dataUri = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
-        const result = await cloudinary.uploader.upload(dataUri, { folder: "airbnc" });
-        return result.secure_url;
-      })
-    );
-    res.json(uploadedUrls);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to upload photos" });
-  }
+const photosMiddleware = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 100 },
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed"));
+    }
+    cb(null, true);
+  },
+});
+app.post("/upload", (req, res) => {
+  photosMiddleware.array("photos", 100)(req, res, async (multerErr) => {
+    if (multerErr) return res.status(400).json({ error: multerErr.message });
+
+    const { token } = req.cookies;
+    jwt.verify(token, jwtSecret, {}, async (err) => {
+      if (err) return res.status(403).json("Token invalid");
+      try {
+        const results = await Promise.allSettled(
+          req.files.map(async (file) => {
+            const dataUri = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+            const result = await cloudinary.uploader.upload(dataUri, { folder: "airbnc" });
+            return result.secure_url;
+          })
+        );
+        const uploadedUrls = results
+          .filter((r) => r.status === "fulfilled")
+          .map((r) => r.value);
+        if (uploadedUrls.length === 0 && req.files.length > 0) {
+          return res.status(500).json({ error: "Failed to upload photos" });
+        }
+        res.json(uploadedUrls);
+      } catch (error) {
+        res.status(500).json({ error: "Failed to upload photos" });
+      }
+    });
+  });
 });
 
 app.post("/places", (req, res) => {
@@ -217,7 +244,11 @@ app.delete("/places/:id", async (req, res) => {
           .filter((photo) => photo.includes("res.cloudinary.com"))
           .map((photo) => {
             const publicId = cloudinaryPublicId(photo);
-            return publicId ? cloudinary.uploader.destroy(publicId).catch(() => {}) : null;
+            return publicId
+              ? cloudinary.uploader
+                  .destroy(publicId)
+                  .catch((err) => console.error("Cloudinary destroy failed:", publicId, err.message))
+              : null;
           })
       );
 
@@ -230,25 +261,38 @@ app.delete("/places/:id", async (req, res) => {
 });
 
 app.delete("/remove-photo", async (req, res) => {
-  const { link } = req.body;
-
-  if (link.includes("res.cloudinary.com")) {
-    const publicId = cloudinaryPublicId(link);
-    try {
-      if (publicId) await cloudinary.uploader.destroy(publicId);
-      return res.json({ success: true });
-    } catch (error) {
-      return res.status(500).json({ success: false, error: "Deletion failed" });
+  const { token } = req.cookies;
+  jwt.verify(token, jwtSecret, {}, async (err, decoded) => {
+    if (err) return res.status(403).json("Token invalid");
+    const { link } = req.body;
+    if (typeof link !== "string" || !link) {
+      return res.status(400).json({ error: "Missing link" });
     }
-  }
 
-  const filePath = path.join(__dirname, "uploads", link);
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) return res.status(200).json({ success: false, message: "File already missing" });
-    fs.unlink(filePath, (err) => {
-      if (err) return res.status(500).json({ success: false, error: "Deletion failed" });
-      res.json({ success: true });
-    });
+    try {
+      const owningPlace = await Place.findOne({ photos: link });
+      if (owningPlace && owningPlace.owner.toString() !== decoded.id) {
+        return res.status(403).json({ success: false, error: "Not authorized to remove this photo" });
+      }
+
+      if (link.includes("res.cloudinary.com")) {
+        const publicId = cloudinaryPublicId(link);
+        if (publicId) await cloudinary.uploader.destroy(publicId);
+        return res.json({ success: true });
+      }
+
+      // basename strips any path traversal segments so this can only resolve inside uploads/
+      const filePath = path.join(__dirname, "uploads", path.basename(link));
+      fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) return res.status(200).json({ success: false, message: "File already missing" });
+        fs.unlink(filePath, (err) => {
+          if (err) return res.status(500).json({ success: false, error: "Deletion failed" });
+          res.json({ success: true });
+        });
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, error: "Deletion failed" });
+    }
   });
 });
 

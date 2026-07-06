@@ -23,8 +23,18 @@ export default function PlacesPage() {
   const [deletingId, setDeletingId] = useState(null);
   const [deleteError, setDeleteError] = useState("");
   const listRef = useRef(null);
+  const confirmButtonRef = useRef(null);
 
-  useStaggerReveal(listRef, "[data-row]", [places]);
+  // Keyed on `loading` (flips true->false once, on initial fetch) rather than
+  // `places`, so deleting a listing later doesn't replay the entrance
+  // animation on every other still-visible card.
+  useStaggerReveal(listRef, "[data-row]", [loading]);
+
+  useEffect(() => {
+    if (confirmingId) {
+      confirmButtonRef.current?.focus();
+    }
+  }, [confirmingId]);
 
   useEffect(() => {
     axios
@@ -44,6 +54,7 @@ export default function PlacesPage() {
   function cancelDelete(ev) {
     ev.preventDefault();
     ev.stopPropagation();
+    if (deletingId) return;
     setConfirmingId(null);
   }
 
@@ -154,6 +165,7 @@ export default function PlacesPage() {
               {confirmingId === place._id ? (
                 <div className="flex items-center gap-1 pl-2">
                   <button
+                    ref={confirmButtonRef}
                     type="button"
                     onClick={(ev) => confirmDelete(ev, place._id)}
                     disabled={deletingId === place._id}
@@ -164,7 +176,8 @@ export default function PlacesPage() {
                   <button
                     type="button"
                     onClick={cancelDelete}
-                    className="text-xs font-medium text-ink/60 hover:text-ink rounded-full px-3 py-2 min-h-9 transition-colors duration-150 active:scale-95 whitespace-nowrap"
+                    disabled={deletingId === place._id}
+                    className="text-xs font-medium text-ink/60 hover:text-ink rounded-full px-3 py-2 min-h-9 transition-colors duration-150 active:scale-95 whitespace-nowrap disabled:opacity-50"
                   >
                     Cancel
                   </button>
