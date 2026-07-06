@@ -27,8 +27,8 @@ export default function BookingPage() {
 
   return (
     <div className="my-8">
-      <h1 className="font-display text-3xl">{booking.place.title}</h1>
-      <AddressLink className="my-2">{booking.place.address}</AddressLink>
+      <h1 className="font-display text-3xl">{booking.place?.title || "Listing no longer available"}</h1>
+      {booking.place?.address && <AddressLink className="my-2">{booking.place.address}</AddressLink>}
 
       <div className="bg-surface-alt p-6 my-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
@@ -41,7 +41,7 @@ export default function BookingPage() {
         </div>
       </div>
 
-      <PlaceGallery place={booking.place} />
+      {booking.place && <PlaceGallery place={booking.place} />}
     </div>
   );
 }

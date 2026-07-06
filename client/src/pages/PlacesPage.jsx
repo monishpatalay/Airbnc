@@ -9,6 +9,9 @@ export default function PlacesPage() {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [confirmingId, setConfirmingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [deleteError, setDeleteError] = useState("");
   const listRef = useRef(null);
 
   useStaggerReveal(listRef, "[data-row]", [places]);
@@ -20,6 +23,35 @@ export default function PlacesPage() {
       .catch(() => setLoadError(true))
       .finally(() => setLoading(false));
   }, []);
+
+  function askDelete(ev, id) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setDeleteError("");
+    setConfirmingId(id);
+  }
+
+  function cancelDelete(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setConfirmingId(null);
+  }
+
+  async function confirmDelete(ev, id) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setDeleteError("");
+    setDeletingId(id);
+    try {
+      await axios.delete(`/places/${id}`);
+      setPlaces((prev) => prev.filter((p) => p._id !== id));
+    } catch (err) {
+      setDeleteError("Couldn't delete this listing. Please try again.");
+    } finally {
+      setDeletingId(null);
+      setConfirmingId(null);
+    }
+  }
 
   return (
     <div>
@@ -40,6 +72,12 @@ export default function PlacesPage() {
           Add new place
         </Link>
       </div>
+
+      {deleteError && (
+        <div className="max-w-lg mx-auto mt-6 rounded-2xl bg-primary-light text-primary-dark text-sm px-4 py-3 text-center">
+          {deleteError}
+        </div>
+      )}
 
       <div ref={listRef} className="mt-8 space-y-4">
         {!loading && loadError && (
@@ -62,10 +100,48 @@ export default function PlacesPage() {
             <div className="flex h-28 w-28 shrink-0 bg-surface-alt rounded-xl overflow-hidden">
               <PlaceImg place={place} />
             </div>
-            <div className="grow-0 shrink min-w-0">
+            <div className="grow-0 shrink min-w-0 flex-1">
               <h2 className="text-lg font-semibold truncate">{place.title}</h2>
               <p className="text-sm text-ink/50 mt-1 line-clamp-2">{place.description}</p>
               <p className="text-sm font-semibold mt-2">${place.price} <span className="text-ink/40 font-normal">/ night</span></p>
+            </div>
+
+            <div className="shrink-0 flex items-center gap-2">
+              {confirmingId === place._id ? (
+                <>
+                  <span className="text-sm text-ink/60 hidden sm:inline">Delete?</span>
+                  <button
+                    type="button"
+                    onClick={(ev) => confirmDelete(ev, place._id)}
+                    disabled={deletingId === place._id}
+                    className="text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-full px-3 py-1.5 transition-colors disabled:opacity-50"
+                  >
+                    {deletingId === place._id ? "Deleting…" : "Confirm"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelDelete}
+                    className="text-sm font-medium text-ink/60 hover:text-ink rounded-full px-3 py-1.5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  aria-label="Delete listing"
+                  onClick={(ev) => askDelete(ev, place._id)}
+                  className="grid place-items-center w-9 h-9 rounded-full text-ink/40 hover:text-primary hover:bg-primary-light transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           </Link>
         ))}

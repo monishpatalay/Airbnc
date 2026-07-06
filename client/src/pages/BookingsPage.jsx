@@ -47,7 +47,7 @@ export default function BookingsPage() {
                 <PlaceImg place={booking.place} className="w-full h-full object-cover" />
               </div>
               <div className="py-4 pr-4 px-2 grow min-w-0">
-                <h2 className="text-lg font-semibold truncate">{booking.place.title}</h2>
+                <h2 className="text-lg font-semibold truncate">{booking.place?.title || "Listing no longer available"}</h2>
                 <BookingDates booking={booking} className="mt-2 text-ink/50" />
                 <div className="flex mt-3 gap-1.5 items-center">
                   <span className="text-lg font-bold text-primary">${booking.price}</span>

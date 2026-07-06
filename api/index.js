@@ -201,6 +201,34 @@ app.put("/places", async (req, res) => {
   });
 });
 
+app.delete("/places/:id", async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, jwtSecret, {}, async (err, decoded) => {
+    if (err) return res.status(403).json("Token invalid");
+    try {
+      const placeDoc = await Place.findById(req.params.id);
+      if (!placeDoc) return res.status(404).json({ error: "Place not found" });
+      if (decoded.id !== placeDoc.owner.toString()) {
+        return res.status(403).json({ error: "Not authorized to delete this place" });
+      }
+
+      await Promise.all(
+        (placeDoc.photos || [])
+          .filter((photo) => photo.includes("res.cloudinary.com"))
+          .map((photo) => {
+            const publicId = cloudinaryPublicId(photo);
+            return publicId ? cloudinary.uploader.destroy(publicId).catch(() => {}) : null;
+          })
+      );
+
+      await Place.findByIdAndDelete(req.params.id);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+});
+
 app.delete("/remove-photo", async (req, res) => {
   const { link } = req.body;
 
