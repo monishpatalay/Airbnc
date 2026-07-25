@@ -2,7 +2,7 @@
 
 A full-stack Airbnb-style booking platform — browse listings, sign up and host your own place, upload photos, and book stays with real-time availability pricing. Built as a MERN application with cookie-based JWT auth, Cloudinary-backed media storage, and a from-scratch GSAP-animated UI.
 
-**Live app:** [airbnc-puce.vercel.app](https://airbnc-puce.vercel.app)
+**Live app:** [airbnc.monishpatalay.dev](https://airbnc.monishpatalay.dev)
 **Live API:** [airbnc-api.onrender.com](https://airbnc-api.onrender.com)
 
 ![Airbnc homepage](.github/assets/homepage.png)
