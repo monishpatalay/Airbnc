@@ -2,6 +2,9 @@
   "name": "api",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
   "type": "module",
   "scripts": {
     "dev": "PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" nodemon index.js",

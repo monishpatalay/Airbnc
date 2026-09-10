@@ -59,7 +59,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173", "https://airbnc-puce.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://airbnc-puce.vercel.app",
+      "https://airbnc.monishpatalay.dev",
+    ],
   })
 );
 
