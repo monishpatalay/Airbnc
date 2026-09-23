@@ -10,11 +10,12 @@ export default function BookingWidget({ place }) {
   const [checkOut, setCheckOut] = useState("");
   const [noOfGuests, setNoOfGuests] = useState(1);
   const [name, setName] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [mobile, setMobile] = useState("");
   const [redirect, setRedirect] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const { user } = useContext(UserContext);
+  const { user, ready } = useContext(UserContext);
   const priceRef = useRef(null);
   const nameSeeded = useRef(false);
 
@@ -41,26 +42,41 @@ export default function BookingWidget({ place }) {
     }
   }, [totalPrice]);
 
-  const canBook = numberOfDays > 0 && name.trim() && mobile.trim();
+  const validPhone = /^\d{10}$/.test(mobile);
+  const validCountryCode = /^\+\d{1,3}$/.test(countryCode);
 
   async function bookThisPlace() {
-    if (!canBook || submitting) return;
     setError("");
+    if (!user) {
+      setError("Please sign in to book this place.");
+      return;
+    }
+    if (!name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+    if (!validCountryCode || !validPhone) {
+      setError("Enter a country code and exactly 10 phone number digits.");
+      return;
+    }
+    if (numberOfDays <= 0 || submitting) return;
     setSubmitting(true);
     try {
       const response = await axios.post("/bookings", {
         place: place._id,
         price: totalPrice,
-        user: user?._id,
         checkIn,
         checkOut,
         noOfGuests,
         name,
+        countryCode,
         mobile,
       });
       setRedirect(`/account/bookings/${response.data._id}`);
-    } catch {
-      setError("Something went wrong while booking. Please try again.");
+    } catch (err) {
+      setError(err.response?.status === 401
+        ? "Please sign in to book this place."
+        : "Something went wrong while booking. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -78,7 +94,7 @@ export default function BookingWidget({ place }) {
       </div>
 
       {error && (
-        <div className="mb-3 rounded-2xl bg-primary-light text-primary-dark text-sm px-4 py-2.5">
+        <div role="alert" className="mb-3 rounded-2xl bg-primary-light text-primary-dark text-sm px-4 py-2.5">
           {error}
         </div>
       )}
@@ -128,21 +144,40 @@ export default function BookingWidget({ place }) {
               onChange={(ev) => setName(ev.target.value)}
               className="w-full !my-1 !p-0 border-none"
             />
-            <label htmlFor="booking-phone" className="block text-xs font-semibold uppercase tracking-wide text-ink/40 mt-2">Phone</label>
-            <input
-              id="booking-phone"
-              type="tel"
-              value={mobile}
-              onChange={(ev) => setMobile(ev.target.value)}
-              className="w-full !my-1 !p-0 border-none"
-            />
+            <div className="flex gap-3 mt-2">
+              <div className="w-24 shrink-0">
+                <label htmlFor="booking-country-code" className="block text-xs font-semibold uppercase tracking-wide text-ink/40">Country code</label>
+                <input
+                  id="booking-country-code"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="+1"
+                  value={countryCode}
+                  onChange={(ev) => setCountryCode(ev.target.value ? `+${ev.target.value.replace(/\D/g, "").slice(0, 3)}` : "")}
+                  className="w-full !my-1 !p-0 border-none"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <label htmlFor="booking-phone" className="block text-xs font-semibold uppercase tracking-wide text-ink/40">Phone number</label>
+                <input
+                  id="booking-phone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="10 digits"
+                  maxLength={10}
+                  value={mobile}
+                  onChange={(ev) => setMobile(ev.target.value.replace(/\D/g, "").slice(0, 10))}
+                  className="w-full !my-1 !p-0 border-none"
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>
 
       <button
         onClick={bookThisPlace}
-        disabled={!canBook || submitting}
+        disabled={numberOfDays <= 0 || submitting || !ready}
         className="btn-primary mt-4"
       >
         {submitting

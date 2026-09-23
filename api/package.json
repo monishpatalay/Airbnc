@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" nodemon index.js",
     "start": "PATH=\"/opt/homebrew/opt/node@22/bin:$PATH\" node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
   },
   "author": "",
   "license": "ISC",

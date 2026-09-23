@@ -305,11 +305,20 @@ app.get("/places", async (req, res) => {
 });
 
 app.post("/bookings", async (req, res) => {
+  let userData;
   try {
-    const userData = await getUserDataFromReq(req);
-    const { place, checkIn, price, checkOut, noOfGuests, name, mobile } = req.body;
+    userData = await getUserDataFromReq(req);
+  } catch {
+    return res.status(401).json({ error: "Please sign in to book this place" });
+  }
+
+  try {
+    const { place, checkIn, price, checkOut, noOfGuests, name, countryCode, mobile } = req.body;
     if (!place || !checkIn || !checkOut || !noOfGuests || !name || !mobile) {
       return res.status(400).json({ error: "Missing required fields" });
+    }
+    if (!/^\+\d{1,3}$/.test(countryCode) || !/^\d{10}$/.test(mobile)) {
+      return res.status(400).json({ error: "Enter a country code and exactly 10 phone number digits" });
     }
     const bookingDoc = await Booking.create({
       place,
@@ -318,7 +327,7 @@ app.post("/bookings", async (req, res) => {
       noOfGuests,
       name,
       price,
-      mobile,
+      mobile: `${countryCode} ${mobile}`,
       user: userData.id,
     });
     res.json(bookingDoc);

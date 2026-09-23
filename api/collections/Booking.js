@@ -7,7 +7,14 @@ const BookingSchema = new mongoose.Schema({
   checkOut: {type: Date, required: true},
   noOfGuests: {type: Number, required: true},
   name: {type: String, required: true},
-  mobile: {type: String, required: true},
+  mobile: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (value) => /^\+\d{1,3} \d{10}$/.test(value),
+      message: "Phone must include a country code and exactly 10 digits",
+    },
+  },
   price: {type: Number, required: true},
 });
 

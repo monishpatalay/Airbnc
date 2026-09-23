@@ -62,12 +62,14 @@ export default function Header() {
             Anywhere
           </button>
           <span className="w-px h-5 bg-black/10" />
-          <button className="flex-1 text-sm font-medium text-ink/60 px-4 py-1.5 rounded-full hover:bg-black/5 transition-colors">
-            Any week
+          <button className="flex flex-1 flex-col items-center text-sm font-medium text-ink/60 px-4 py-1 rounded-full hover:bg-black/5 transition-colors">
+            <span>Any week</span>
+            <span className="text-[9px] font-semibold uppercase tracking-wide text-primary">Beta</span>
           </button>
           <span className="w-px h-5 bg-black/10" />
-          <button className="flex-1 text-sm font-medium text-ink/60 px-4 py-1.5 rounded-full hover:bg-black/5 transition-colors text-left">
-            Add guests
+          <button className="flex flex-1 flex-col items-start text-sm font-medium text-ink/60 px-4 py-1 rounded-full hover:bg-black/5 transition-colors">
+            <span>Add guests</span>
+            <span className="text-[9px] font-semibold uppercase tracking-wide text-primary">Beta</span>
           </button>
           <button
             aria-label="Search"
